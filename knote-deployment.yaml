@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: knote
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: knote
+  template:
+    metadata:
+      labels:
+        app: knote
+    spec:
+      containers:
+        - name: knote
+          image: sofiac14/knote-app:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATA_MONGODB_URI
+              value: mongodb://mongodb-service:27017/knote
+            - name: MINIO_URL
+              value: http://minio-service:9000
+            - name: MINIO_ACCESS_KEY
+              value: admin
+            - name: MINIO_SECRET_KEY
+              value: admin123
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: knote-service
+spec:
+  selector:
+    app: knote
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: NodePort
